@@ -29,3 +29,34 @@ def Butterworth(delta1,delta2,omega_p,omega_s):
 
   return systemfunc,N,omega_c,poles 
 
+def Chebyshev(delta1,delta2,omega_p,omega_s):
+  def params(delta1,delta2,omega_p,omega_s):
+    d1 = 1/(1-delta1)**2 - 1
+    d2 = 1/delta2**2 - 1 
+    # Here we take "optimal" epsilon
+    eps = np.sqrt(d1)
+    # Here we take "optimal" N
+    N = np.ceil(np.arccosh(np.sqrt(d2/d1))/np.arccosh(omega_s/omega_p))
+
+    return int(N),eps
+
+  def C(n,x):
+    if n==0 : return 1
+    elif n==1 : return x
+    else : return 2*x*C(n-1,x)-C(n-2,x)
+
+  N,eps = params(delta1,delta2,omega_p,omega_s)
+
+  Ak = ((2*(np.linspace(0,2*N-1,2*N))+1)*np.pi)/(2*N)
+  Bk = (np.arcsinh(1/eps))/N
+  all_poles = omega_p*(np.sin(Ak)*np.sinh(Bk)+(1j)*np.cos(Ak)*np.cosh(Bk))
+  poles = all_poles[all_poles.real<0]
+
+  def systemfunc(x):
+    nume = np.prod(-poles)*(1/np.sqrt(1+eps**2) if N%2==0 else 1)
+    deno = np.prod(x-poles)
+    return nume/deno
+
+  return systemfunc,N,eps,poles
+  
+  
