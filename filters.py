@@ -53,7 +53,7 @@ def Chebyshev(delta1,delta2,omega_p,omega_s):
   poles = all_poles[all_poles.real<0]
 
   def systemfunc(x):
-    nume = np.prod(-poles)*(1/np.sqrt(1+eps**2) if N%2==0 else 1)
+    nume = np.prod(-poles)*(-1/np.sqrt(1+eps**2) if N%2==0 else 1)
     deno = np.prod(x-poles)
     return nume/deno
 
